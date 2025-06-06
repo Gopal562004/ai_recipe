@@ -1,19 +1,44 @@
-import Link from "next/link";
+"use client";
 
-export default function RecipeCard({ recipe }: { recipe: any }) {
-  const ingredients = Object.keys(recipe)
-    .filter((key) => key.startsWith("strIngredient") && recipe[key])
-    .slice(0, 3)
-    .map((key) => recipe[key]);
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+type Recipe = {
+  idMeal: string;
+  strMeal: string;
+  strMealThumb: string;
+  strCategory?: string;
+  strArea?: string;
+  strInstructions: string;
+  [key: string]: any; // For dynamic ingredient fields
+};
+
+export default function RecipeCard({ recipe }: { recipe: Recipe }) {
+  const [ingredients, setIngredients] = useState<string[]>([]);
+
+  useEffect(() => {
+    const ingr = Object.keys(recipe)
+      .filter((key) => key.startsWith("strIngredient") && recipe[key])
+      .slice(0, 3)
+      .map((key) => recipe[key]);
+    setIngredients(ingr);
+  }, [recipe]);
 
   return (
     <Link href={`/recipe/${recipe.idMeal}`}>
       <div className="cursor-pointer max-w-sm bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-200 dark:border-gray-700">
-        <img
-          className="w-full h-48 object-cover"
-          src={recipe.strMealThumb}
-          alt={recipe.strMeal}
-        />
+        {/* Safe, optimized image */}
+        <div className="relative w-full h-48">
+          <Image
+            src={recipe.strMealThumb}
+            alt={recipe.strMeal}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        </div>
 
         <div className="p-5">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
