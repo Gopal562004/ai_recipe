@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import Image from "next/image";
 type SavedRecipeCardProps = {
   recipe: {
     id: string | number;
@@ -22,7 +22,7 @@ export default function SavedRecipeCard({
         className="flex flex-1 items-center space-x-4 cursor-pointer"
         passHref
       >
-        <img
+        <Image
           src={recipe.imageUrl}
           alt={recipe.title}
           className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
