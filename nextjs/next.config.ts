@@ -1,9 +1,12 @@
-// next.config.ts
 import withPWA from 'next-pwa';
 import { NextConfig } from 'next';
 
+// Next.js config
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    appDir: true, // important for App Router
+  },
   images: {
     domains: ['www.themealdb.com'],
   },
@@ -15,7 +18,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPWA({
+// PWA config
+const pwaConfig = {
   dest: 'public',
   register: true,
   skipWaiting: true,
@@ -24,6 +28,7 @@ export default withPWA({
   fallbacks: {
     document: '/offline.html',
   },
-  // Merge Next.js config separately
-  ...nextConfig,
-});
+};
+
+// Correct export
+export default withPWA(pwaConfig)(nextConfig);
