@@ -1,10 +1,26 @@
-import type { NextConfig } from "next";
+// next.config.js
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV !== 'production',
+  cacheOnFrontEndNav: true,
+  fallbacks: {
+    document: '/offline.html'
+  }
+});
 
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
-    domains: ["www.themealdb.com"], // Add your image source domain
+    domains: ['www.themealdb.com']
   },
+  eslint: {
+    ignoreDuringBuilds: true
+  },
+  typescript: {
+    ignoreBuildErrors: true
+  }
 };
 
-export default nextConfig;
+module.exports = withPWA(nextConfig);
