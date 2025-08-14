@@ -37,7 +37,7 @@ export default function SavedRecipes() {
       try {
         const data = await getSavedRecipes();
         setSavedRecipes(data);
-      } catch (err) {
+      } catch (err: any) {
         setError("Failed to load saved recipes.");
       } finally {
         setLoading(false);

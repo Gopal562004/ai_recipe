@@ -1,6 +1,7 @@
 const fetch = require("node-fetch");
 
-const HUGGINGFACE_API_TOKEN = process.env.HUGGING_API;
+const GEMINI_API_KEY =
+  process.env.GEMINI_API || "AIzaSyC4LgzklWXLSvrSDUvP8pNTL9lZDSR7up0";
 
 const generateRecipe = async (req, res) => {
   const { prompt, categories = [] } = req.body;
@@ -28,31 +29,24 @@ Provide a recipe in this JSON format:
   "strIngredient3": "..."
 }
 Only return JSON.
-
-Example:
-{
-  "idMeal": "123",
-  "strMeal": "Chicken and Rice with Indian Spices",
-  "strMealThumb": "https://www.example.com/chicken-spice-rice.jpg",
-  "strCategory": "Chicken, Easy, 30 min",
-  "strArea": "Indian",
-  "strInstructions": "1. Cook rice according to package directions...",
-  "strIngredient1": "1 lb boneless, skinless chicken breast",
-  "strIngredient2": "1 cup basmati rice",
-  "strIngredient3": "1 tablespoon oil"
-}
 `;
 
   try {
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ inputs: fullPrompt }),
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: fullPrompt }],
+            },
+          ],
+        }),
       }
     );
 
@@ -64,7 +58,8 @@ Example:
         .json({ message: "API Error", error: result.error });
     }
 
-    const rawText = result?.[0]?.generated_text || "";
+    const rawText =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
 
     // Match all JSON blocks in the response
     const allJsonBlocks = [...rawText.matchAll(/\{[\s\S]*?\}/g)];
@@ -76,7 +71,7 @@ Example:
       });
     }
 
-    // Use the last JSON block (usually the example one)
+    // Use the last JSON block
     const jsonText = allJsonBlocks[allJsonBlocks.length - 1][0];
 
     let recipe;
@@ -92,7 +87,9 @@ Example:
 
     return res.status(200).json({ recipe });
   } catch (error) {
-    return res.status(500).json({ message: "Server Error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
 };
 
